@@ -7,7 +7,7 @@ some performance benefits by minimizing the number of requests made to the serve
 validation (as opposed to burdening Apple's servers with totally invalid requests).
 
 
-Requrements
+Requirements
 ===========
 
 - SOAP support in your PHP

@@ -569,17 +569,23 @@ class GsxLib
     
     /**
     * Do the actual SOAP request
+	* alt_req_name and alt_resp_name are only necessary when the GSX WSDL
+	* does not match the standard MethodName, MethodNameRequest, MethodNameResponse
+	* format that most of the WSDL conforms to.
     */
-    public function request($req)
+    public function request($req,$alt_req_name="",$alt_resp_name="")
     {
         $result = FALSE;
 
         // split the request name and data
         list($r, $p) = each($req);
+		//handle alternate request name
+		$request_name = $alt_req_name ? $alt_req_name : $r . "Request";
+		$response_name = $alt_resp_name ? $alt_resp_name : $r . "Response";
 
         // add session info
         $p['userSession'] = array('userSessionId' => $this->session_id);
-        $request = array($r.'Request' => $p);
+        $request = array($request_name => $p);
 
         try {
             $result = $this->client->$r($request);
@@ -589,7 +595,7 @@ class GsxLib
                 syslog(LOG_NOTICE, "REQUEST: \n" . $this->client->__getLastRequest());
                 syslog(LOG_NOTICE, "RESPONSE: \n" . $this->client->__getLastResponse());
             }
-            return $result->$resp;
+            return $result->$response_name;
         } catch(SoapFault $e) {
             throw new GsxException($e->getMessage(), $this->client->__getLastRequest());
         }
